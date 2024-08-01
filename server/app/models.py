@@ -1,4 +1,4 @@
-from app.__init__ import db
+from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -8,9 +8,12 @@ class User(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    profile_photo = db.Column(db.String(256), nullable=True) 
     recipes = db.relationship('Recipe', backref='author', lazy=True)
     reviews = db.relationship('Review', backref='author', lazy=True)
     favorites = db.relationship('Favorite', backref='user', lazy=True)
+    wishlist = db.relationship('Wishlist', backref='user', lazy=True)
+    recommendations = db.relationship('Recommendation', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -25,8 +28,14 @@ class Recipe(db.Model):
     description = db.Column(db.Text, nullable=False)
     ingredients = db.Column(db.Text, nullable=False)
     instructions = db.Column(db.Text, nullable=False)
+    main_photo = db.Column(db.String(256), nullable=True)
+    step_photos = db.Column(db.JSON, nullable=True)  
+    ingredient_photos = db.Column(db.JSON, nullable=True) 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     reviews = db.relationship('Review', backref='recipe', lazy=True)
+    favorites = db.relationship('Favorite', backref='recipe', lazy=True)
+    wishlist = db.relationship('Wishlist', backref='recipe', lazy=True)
+    recommendations = db.relationship('Recommendation', backref='recipe', lazy=True)
 
 class Review(db.Model):
     __tablename__ = 'reviews'
@@ -42,3 +51,16 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+
+class Wishlist(db.Model):
+    __tablename__ = 'wishlist'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+
+class Recommendation(db.Model):
+    __tablename__ = 'recommendations'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+    reason = db.Column(db.String(255), nullable=False)
