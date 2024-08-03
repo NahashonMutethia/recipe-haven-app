@@ -1,10 +1,14 @@
 from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import User, Favorite, Recipe, Wishlist, Recommendation
+from app.models import User, Favorite, Recipe, Wishlist, Recommendation, SupportTicket
 import os
 
 user = Blueprint('user', __name__)
+
+# Helper function to check if the user is an admin
+def is_admin(user_id):
+    return User.query.filter_by(id=user_id, is_admin=True).first() is not None
 
 # Get user profile
 @user.route('/user/profile', methods=['GET'])
@@ -164,3 +168,94 @@ def get_recommendations():
         'description': recipe.description,
         'reason': rec.reason
     } for rec, recipe in zip(recommendations, recommended_recipes)])
+
+# Admin routes
+
+# Get all support tickets
+@user.route('/admin/support_tickets', methods=['GET'])
+@jwt_required()
+def get_support_tickets():
+    user_id = get_jwt_identity()
+    if user_id != 1: 
+        return jsonify({"message": "Access forbidden"}), 403
+
+    tickets = SupportTicket.query.all()
+    return jsonify([{
+        'id': ticket.id,
+        'subject': ticket.subject,
+        'message': ticket.message,
+        'status': ticket.status,
+        'user_id': ticket.user_id,
+        'created_at': ticket.created_at
+    } for ticket in tickets])
+
+# Set status of a support ticket
+@user.route('/admin/support_tickets/<int:ticket_id>', methods=['PATCH'])
+@jwt_required()
+def update_ticket_status(ticket_id):
+    user_id = get_jwt_identity()
+    if user_id != 1: 
+        return jsonify({"message": "Access forbidden"}), 403
+
+    data = request.get_json()
+    ticket = SupportTicket.query.get(ticket_id)
+    if not ticket:
+        return jsonify({"message": "Ticket not found"}), 404
+
+    # Default to 'pending' if no status provided
+    status = data.get('status', 'pending')
+    if status not in ['pending', 'completed']:
+        return jsonify({"message": "Invalid status"}), 400
+
+    ticket.status = status
+    db.session.commit()
+    return jsonify({"message": "Ticket status updated successfully"}), 200
+
+# Get all users
+@user.route('/admin/users', methods=['GET'])
+@jwt_required()
+def get_users():
+    user_id = get_jwt_identity()
+    if user_id != 1: 
+        return jsonify({"message": "Access forbidden"}), 403
+
+    users = User.query.all()
+    return jsonify({
+        'total_users': len(users),
+        'users': [{
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        } for user in users]
+    })
+
+# Get all recipes
+@user.route('/admin/recipes', methods=['GET'])
+@jwt_required()
+def get_recipes():
+    user_id = get_jwt_identity()
+    if user_id != 1: 
+        return jsonify({"message": "Access forbidden"}), 403
+
+    recipes = Recipe.query.all()
+    return jsonify([{
+        'id': recipe.id,
+        'name': recipe.name,
+        'description': recipe.description
+    } for recipe in recipes])
+
+# Delete a recipe
+@user.route('/admin/recipes/<int:recipe_id>', methods=['DELETE'])
+@jwt_required()
+def delete_recipe(recipe_id):
+    user_id = get_jwt_identity()
+    if user_id != 1: 
+        return jsonify({"message": "Access forbidden"}), 403
+
+    recipe = Recipe.query.get(recipe_id)
+    if not recipe:
+        return jsonify({"message": "Recipe not found"}), 404
+
+    db.session.delete(recipe)
+    db.session.commit()
+    return jsonify({"message": "Recipe deleted successfully"}), 200
