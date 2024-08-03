@@ -9,17 +9,20 @@ class User(db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     profile_photo = db.Column(db.String(256), nullable=True) 
+    is_admin = db.Column(db.Boolean, default=False)
     recipes = db.relationship('Recipe', backref='author', lazy=True)
     reviews = db.relationship('Review', backref='author', lazy=True)
     favorites = db.relationship('Favorite', backref='user', lazy=True)
     wishlist = db.relationship('Wishlist', backref='user', lazy=True)
     recommendations = db.relationship('Recommendation', backref='user', lazy=True)
+    support_tickets = db.relationship('SupportTicket', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
 
 class Recipe(db.Model):
     __tablename__ = 'recipes'
@@ -64,3 +67,13 @@ class Recommendation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     reason = db.Column(db.String(255), nullable=False)
+
+class SupportTicket(db.Model):
+    __tablename__ = 'support_tickets'
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(255), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='open')  # open, closed, in-progress
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
