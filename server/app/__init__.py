@@ -21,6 +21,10 @@ def create_app():
     
     with app.app_context():
         db.create_all() 
+    
+    from app.routes.support import support
+    app.register_blueprint(support, url_prefix='/support')
+
 
     from .routes.auth import auth
     from .routes.recipe import recipe
