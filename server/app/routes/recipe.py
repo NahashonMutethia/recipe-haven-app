@@ -16,9 +16,9 @@ def get_recipes():
         'ingredients': recipe.ingredients,
         'instructions': recipe.instructions,
         'main_photo': recipe.main_photo,
-        'step_photos': recipe.step_photos,
-        'ingredient_photos': recipe.ingredient_photos,
-        'author': recipe.author.username
+        # 'step_photos': recipe.step_photos,
+        # 'ingredient_photos': recipe.ingredient_photos,
+        # 'author': recipe.author.username
     } for recipe in recipes])
 
 # Add a new recipe

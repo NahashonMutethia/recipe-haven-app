@@ -11,7 +11,7 @@ function UserProfile() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://localhost:5000/users/profile', {
+        const response = await fetch('http://localhost:5000/user/profile', {
           headers: {
             'Authorization': `Bearer ${getToken()}`,
           },
@@ -30,7 +30,7 @@ function UserProfile() {
 
     const fetchFavorites = async () => {
       try {
-        const response = await fetch('http://localhost:5000/users/favorites', {
+        const response = await fetch('http://localhost:5000/user/favorites', {
           headers: {
             'Authorization': `Bearer ${getToken()}`,
           },
@@ -49,7 +49,7 @@ function UserProfile() {
 
     const fetchWishlist = async () => {
       try {
-        const response = await fetch('http://localhost:5000/users/wishlist', {
+        const response = await fetch('http://localhost:5000/user/wishlist', {
           headers: {
             'Authorization': `Bearer ${getToken()}`,
           },
@@ -68,7 +68,7 @@ function UserProfile() {
 
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch('http://localhost:5000/users/recommendations', {
+        const response = await fetch('http://localhost:5000/user/recommendations', {
           headers: {
             'Authorization': `Bearer ${getToken()}`,
           },

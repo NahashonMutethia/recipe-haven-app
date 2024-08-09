@@ -1,12 +1,12 @@
 import React from 'react';
 import './Recipe.css';
 
-function Pagination({ currentPage, totalPages, onPageChange }) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const pages = [...Array(totalPages).keys()].map(num => num + 1);
 
   return (
     <div className="pagination">
-      {pages.map((page) => (
+      {pages.map(page => (
         <button
           key={page}
           className={page === currentPage ? 'active' : ''}
@@ -17,6 +17,6 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       ))}
     </div>
   );
-}
+};
 
 export default Pagination;

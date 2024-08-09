@@ -35,9 +35,9 @@ def create_app():
     from app.routes.user import user
     from app.routes.support import support
 
-    app.register_blueprint(auth, url_prefix='/auth')
-    app.register_blueprint(recipe, url_prefix='/recipes')
-    app.register_blueprint(user, url_prefix='/users')
-    app.register_blueprint(support, url_prefix='/support')
+    app.register_blueprint(auth)
+    app.register_blueprint(recipe)
+    app.register_blueprint(user)
+    app.register_blueprint(support)
 
     return app

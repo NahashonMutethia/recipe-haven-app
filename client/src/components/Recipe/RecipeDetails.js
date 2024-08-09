@@ -1,53 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ReviewList from '../Review/ReviewList';
-import ReviewForm from '../Review/ReviewForm';
 import './Recipe.css';
 
-function RecipeDetails() {
+const RecipeDetails = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
 
   useEffect(() => {
-    const fetchRecipe = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:5000/recipes/recipes/${id}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setRecipe(data);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchRecipe();
+    fetch(`http://127.0.0.1:5000/recipes/${id}`)
+      .then(response => response.json())
+      .then(data => setRecipe(data))
+      .catch(error => console.error('Error fetching recipe:', error));
   }, [id]);
 
-  if (!recipe) return <div>Loading...</div>;
+  if (!recipe) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="recipe-details">
-      <h2>{recipe.title}</h2>
-      <img src={recipe.imageUrl} alt={recipe.title} />
+      <img src={recipe.main_photo} alt={recipe.name} />
+      <h3>{recipe.name}</h3>
       <p>{recipe.description}</p>
-      <h3>Ingredients</h3>
-      <ul>
-        {recipe.ingredients.map((ingredient, index) => (
-          <li key={index}>{ingredient}</li>
-        ))}
-      </ul>
-      <h3>Steps</h3>
-      <ol>
-        {recipe.steps.map((step, index) => (
-          <li key={index}>{step}</li>
-        ))}
-      </ol>
-      <ReviewList reviews={recipe.reviews} />
-      <ReviewForm recipeId={id} />
+      <p>{recipe.ingredients}</p>
+      <p>{recipe.instructions}</p>
     </div>
   );
-}
+};
 
 export default RecipeDetails;
